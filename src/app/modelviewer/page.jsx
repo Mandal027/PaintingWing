@@ -1,51 +1,48 @@
 "use client";
 
+export const dynamic = "force-dynamic";
+
 import { useState, useEffect } from "react";
 import ModelViewer from "@/components/ModelViewer";
 import LoadingScreen from "@/components/LoadingScreen";
-// import Navbar from "@/components/Induction/Navbar";
 import Navbar from "@/components/BitSindri/Navbar";
 
 export default function ModelViewers() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Function to listen for all model-viewer load events
-    const handleModelsLoaded = () => {
-      let loadedModels = 0;
-      const totalModels = 4; // Total number of model-viewer elements
+    // Ensure the code runs only in browser
+    if (typeof window === "undefined" || typeof document === "undefined") return;
 
-      const onLoad = () => {
-        loadedModels++;
-        if (loadedModels === totalModels) {
-          setIsLoading(false);
-        }
-      };
+    const totalModels = 4;
+    let loadedModels = 0;
 
-      // Get all model-viewer elements
-      const modelViewers = document.querySelectorAll("model-viewer");
-      modelViewers.forEach((viewer) => {
-        viewer.addEventListener("load", onLoad);
-      });
-
-      // Cleanup function
-      return () => {
-        const modelViewers = document.querySelectorAll("model-viewer");
-        modelViewers.forEach((viewer) => {
-          viewer.removeEventListener("load", onLoad);
-        });
-      };
+    const onLoad = () => {
+      loadedModels++;
+      if (loadedModels === totalModels) {
+        setIsLoading(false);
+      }
     };
 
-    // Call the function after component mounts
-    const cleanup = handleModelsLoaded();
-    return cleanup;
+    // Get all model-viewer elements
+    const modelViewers = document.querySelectorAll("model-viewer");
+
+    modelViewers.forEach((viewer) => {
+      viewer.addEventListener("load", onLoad);
+    });
+
+    // Cleanup on unmount
+    return () => {
+      modelViewers.forEach((viewer) => {
+        viewer.removeEventListener("load", onLoad);
+      });
+    };
   }, []);
 
   return (
     <>
       {isLoading && <LoadingScreen />}
-      <Navbar/>
+      <Navbar />
       <ModelViewer />
     </>
   );
